@@ -1,8 +1,8 @@
-const electron = require('electron')
+const electron = require("electron");
 
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow } = require("electron");
 
-function createWindow () {
+function create_instance () {
   // Create the browser window.
   let win = new BrowserWindow({
     width: 3840,
@@ -13,9 +13,10 @@ function createWindow () {
   })
 
   // and load the index.html of the app.
-  win.loadFile('index.html')
-  // Open the DevTools.
+  win.loadFile('app.html');
+
+  // open dev tools, optional
   win.webContents.openDevTools();
 }
 
-app.on('ready', createWindow);
+app.on('ready', create_instance);
