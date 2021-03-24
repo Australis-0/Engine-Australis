@@ -1,6 +1,3 @@
-const path = require('path');
-const fs = require('fs');
-
 var provinceArray = [];
 var stateArray = [];
 
@@ -10,27 +7,27 @@ var map_mode = "provinces";
 
 {
   //Provinces
-  provinceData = {};
+  province_data = {};
 
   //States
   state_count = 0;
-  state_colours = [];
+  state_colors = [];
 
-  colours = [];
+  colors = [];
 
   //Defines
-  colours_amount = 23000;
-  prov_hundred_rounded = 13200;
+  colors_amount = 23000;
+  rounded_provinces = 13200;
   map_width = 5616;
   map_height = 2048;
 
   //Loading
-  waterRenderingDone = false;
-  stateRenderingDone = false;
+  water_rendering_done = false;
+  state_rendering_done = false;
 } //Variables
 
-for (var i = 0; i < colours_amount; i++) {
-  state_colours.push([getRandom(0,255), getRandom(0,255), getRandom(0,255)]);
+for (var i = 0; i < colors_amount; i++) {
+  state_colors.push([getRandom(0,255), getRandom(0,255), getRandom(0,255)]);
 }
 function getRandom (min, max) {
   min = Math.ceil(min);
@@ -52,7 +49,7 @@ function redraw () { //Initialise Canvas element
   dtx.drawImage(img, 0, 0, img.width, img.height);
   etx.drawImage(img, 0, 0, img.width, img.height);
 
-  imageData = ctx.getImageData(0, 0, img.width, img.height);
+  image_data = ctx.getImageData(0, 0, img.width, img.height);
 
   function getCursorPosition(c, event) {
     var panY  = window.pageYOffset || document.documentElement.scrollTop,
@@ -64,47 +61,47 @@ function redraw () { //Initialise Canvas element
     console.log(y);
   }
 
-  function replaceColour (colour1, colour2) {
-    for (var x = 0; x < imageData.data.length; x+=4) {
-      if (imageData.data[x] == colour1[0] && imageData.data[x+1] == colour1[1] && imageData.data[x+2] == colour1[2]) {
-        imageData.data[x] = colour2[0];
-        imageData.data[x+1] = colour2[1];
-        imageData.data[x+2] = colour2[2];
+  function replace_color (colour1, colour2) {
+    for (var x = 0; x < image_data.data.length; x+=4) {
+      if (image_data.data[x] == colour1[0] && image_data.data[x+1] == colour1[1] && image_data.data[x+2] == colour1[2]) {
+        image_data.data[x] = colour2[0];
+        image_data.data[x+1] = colour2[1];
+        image_data.data[x+2] = colour2[2];
       }
     }
   }
 
   c.addEventListener('click', function(e) {
-    //if (stateRenderingDone && waterRenderingDone) {
-      mouseCoords = getCursorPosition(c, e);
-      var coordData = etx.getImageData(mouseCoords[0], mouseCoords[1], 1, 1);
-      console.log(coordData);
-      console.log("x: " + mouseCoords[0] + " y: " + mouseCoords[1]);
+    //if (state_rendering_done && water_rendering_done) {
+      mouse_coordinates = getCursorPosition(c, e);
+      var coordinate_data = etx.getImageData(mouse_coordinates[0], mouse_coordinates[1], 1, 1);
+      console.log(coordinate_data);
+      console.log("x: " + mouse_coordinates[0] + " y: " + mouse_coordinates[1]);
       for (var i = 0; i < definition.length; i++) {
-        if (coordData.data[0] == parseInt(definition[i][1]) && coordData.data[1] == parseInt(definition[i][2]) && coordData.data[2] == parseInt(definition[i][3])) {
-          if (provinceData[i] != undefined) {
+        if (coordinate_data.data[0] == parseInt(definition[i][1]) && coordinate_data.data[1] == parseInt(definition[i][2]) && coordinate_data.data[2] == parseInt(definition[i][3])) {
+          if (province_data[i] != undefined) {
             selectedProvince = definition[i][0];
             var currentProvince = definition[i][0];
-            var provinceColour = [parseInt(definition[i][1]), parseInt(definition[i][2]), parseInt(definition[i][3])];
-            var currentState = provinceData[i][1];
-            var stateColour = state_colours[currentState];
+            var province_color = [parseInt(definition[i][1]), parseInt(definition[i][2]), parseInt(definition[i][3])];
+            var currentState = province_data[i][1];
+            var stateColour = state_colors[currentState];
             console.log("You have clicked on Province " + selectedProvince + "\nState: " + currentState);
 
             if (map_mode == "provinces") {
-              replaceColour(provinceColour, [255, 255, 255]);
-              dtx.putImageData(imageData, 0, 0);
+              replace_color(province_color, [255, 255, 255]);
+              dtx.putImageData(image_data, 0, 0);
 
               setTimeout(function(){
-                replaceColour([255, 255, 255], provinceColour);
-                dtx.putImageData(imageData, 0, 0);
+                replace_color([255, 255, 255], province_color);
+                dtx.putImageData(image_data, 0, 0);
               },100);
             } else if (map_mode == "states") {
-              replaceColour(stateColour, [255, 255, 255]);
-              dtx.putImageData(imageData, 0, 0);
+              replace_color(stateColour, [255, 255, 255]);
+              dtx.putImageData(image_data, 0, 0);
 
               setTimeout(function(){
-                replaceColour([255, 255, 255], stateColour);
-                dtx.putImageData(imageData, 0, 0);
+                replace_color([255, 255, 255], stateColour);
+                dtx.putImageData(image_data, 0, 0);
               },100);
             }
           }
@@ -119,62 +116,62 @@ function redraw () { //Initialise Canvas element
 
   try {
     definition = fs.readFileSync("./resources/app/map/definition.csv", "utf8");
-    definition = (window.csv_to_array(definition.toString(), ";"));
+    definition = window.csv_to_array(definition.toString(), ";");
   } catch(e) {
     console.log('Error:', e.stack);
   }
 
   zoom(1); //Call in case the map is not vanilla.
-  
+
   {
-    prov_hundred_rounded = Math.ceil(definition.length/100)*100;
-    provStateCount = 0;
+    rounded_provinces = Math.ceil(definition.length/100)*100;
+    province_state_count = 0;
     var x = 0;
 
     setInterval(function(){
-      if (definition[provStateCount] != undefined) {
-        if (definition[provStateCount][6] != "ocean" && definition[provStateCount][6] != "lakes" && provinceData[provStateCount] != undefined) {
-          replaceColour([parseInt(definition[provStateCount][1]), parseInt(definition[provStateCount][2]), parseInt(definition[provStateCount][3])], state_colours[parseInt(provinceData[provStateCount][1])]);
-          dtx.putImageData(imageData, 0, 0);
+      if (definition[province_state_count] != undefined) {
+        if (definition[province_state_count][6] != "ocean" && definition[province_state_count][6] != "lakes" && province_data[province_state_count] != undefined) {
+          replace_color([parseInt(definition[province_state_count][1]), parseInt(definition[province_state_count][2]), parseInt(definition[province_state_count][3])], state_colors[parseInt(province_data[province_state_count][1])]);
+          dtx.putImageData(image_data, 0, 0);
           reload();
 
-          if (stateRenderingDone != true) {
-            console.log(Math.round((provStateCount/definition.length)*100) + "% done with rendering land provinces!");
+          if (state_rendering_done != true) {
+            console.log(Math.round((province_state_count/definition.length)*100) + "% done with rendering land provinces!");
           }
         }
-        provStateCount++;
-        if (provStateCount >= definition.length-1) {
-          stateRenderingDone = true;
+        province_state_count++;
+        if (province_state_count >= definition.length-1) {
+          state_rendering_done = true;
         }
       }
     }, 0);
-    //Generate random state colours
-    provCount = 0;
+    //Generate random state colors
+    province_count = 0;
     setInterval(function(){
-      if (stateRenderingDone) {
-        if (provCount != prov_hundred_rounded) {
-          if (waterRenderingDone == false) {
+      if (state_rendering_done) {
+        if (province_count != rounded_provinces) {
+          if (water_rendering_done == false) {
             for (var i = 0; i < 100; i++) {
-              if (definition[provCount+i] != undefined) {
-                if (definition[provCount+i][6] == "ocean" || definition[provCount+i][6] == "lakes") {
-                  replaceColour([parseInt(definition[provCount+i][1]), parseInt(definition[provCount+i][2]), parseInt(definition[provCount+i][3])], [176, 203, 244]);
-                  dtx.putImageData(imageData, 0, 0);
+              if (definition[province_count+i] != undefined) {
+                if (definition[province_count+i][6] == "ocean" || definition[province_count+i][6] == "lakes") {
+                  replace_color([parseInt(definition[province_count+i][1]), parseInt(definition[province_count+i][2]), parseInt(definition[province_count+i][3])], [176, 203, 244]);
+                  dtx.putImageData(image_data, 0, 0);
                   reload();
                 }
-                console.log(Math.round((provCount/definition.length)*100) + "% done with rendering water provinces!");
+                console.log(Math.round((province_count/definition.length)*100) + "% done with rendering water provinces!");
               }
             }
-            if (provCount < definition.length-1) {
-              provCount = provCount + 100;
+            if (province_count < definition.length-1) {
+              province_count = province_count + 100;
             }
           }
         } else {
-          if (waterRenderingDone == false) {
+          if (water_rendering_done == false) {
             saveImage("map-canvas", "cache/map_c.png");
             saveImage("map-canvas-2", "cache/map_d.png");
             saveImage("map-canvas-3", "cache/map_e.png");
           }
-          waterRenderingDone = true;
+          water_rendering_done = true;
         }
       }
     }, 0);
@@ -184,29 +181,29 @@ function redraw () { //Initialise Canvas element
   //((?<=provinces= {\r|provinces= {\n|provinces= {\r\n)[^\r\n]+)|((?<=provinces = {\r|provinces = {\n|provinces = {\r\n)[^\r\n]+)|((?<=provinces ={\r|provinces ={\n|provinces ={\r\n)[^\r\n]+)|((?<=provinces={\r|provinces={\n|provinces={\r\n)[^\r\n]+)
   {
     {
-      var currentFileContent = fs.readFileSync('resources/app/common/countries/colors.txt', 'utf8').toString();
-      colours = currentFileContent.match(/([A-Z]\w\w)|((?<=color = ).*)/gm).toString();
-      colours = colours.replace(/rgb/gm, "");
-      colours = colours.replace(/(#)|[a-z]/gm, "");
-      colours = colours.replace(/(  )/gm, " ");
-      colours = colours.replace(/{/gm, "");
-      colours = colours.replace(/}/gm, "");
-      colours = colours.split(",");
+      var current_colors_file_content = fs.readFileSync('resources/app/common/countries/colors.txt', 'utf8').toString();
+      colors = current_colors_file_content.match(/([A-Z]\w\w)|((?<=color = ).*)/gm).toString();
+      colors = colors.replace(/rgb/gm, "");
+      colors = colors.replace(/(#)|[a-z]/gm, "");
+      colors = colors.replace(/(  )/gm, " ");
+      colors = colors.replace(/{/gm, "");
+      colors = colors.replace(/}/gm, "");
+      colors = colors.split(",");
 
-      for (var i = 0; i < colours.length; i++) {
-        colours[i] = colours[i].split(" ");
+      for (var i = 0; i < colors.length; i++) {
+        colors[i] = colors[i].split(" ");
       }
 
-      console.log(colours);
-    } //Parse colours.txt file
+      console.log(colors);
+    } //Parse colors.txt file
     //joining path of directory
-    const directoryPath = path.join(__dirname, '/history/states');
+    const states_directory_path = path.join(__dirname, '/history/states');
 
     //Provinces: [id, state, owner, controller]
 
-    //passsing directoryPath and callback function
+    //passsing states_directory_path and callback function
     var id_aliases = [/(?<=id=).*/gm, /(?<=id = ).*/gm, /(?<=id =).*/gm, /(?<=id= ).*/gm];
-    fs.readdir(directoryPath, function (err, files) {
+    fs.readdir(states_directory_path, function (err, files) {
       //handling error
       if (err) {
         return console.log('Unable to scan directory: ' + err);
@@ -214,7 +211,7 @@ function redraw () { //Initialise Canvas element
       //listing all files using forEach
       files.forEach(function (file) {
         // Do whatever you want to do with the file
-        var currentFileContent = fs.readFileSync('resources/app/history/states/' + file, 'utf8');
+        var current_history_file_content = fs.readFileSync('resources/app/history/states/' + file, 'utf8');
         var provinces = [];
         var state_id = 0;
         var state_colour = [];
@@ -224,7 +221,7 @@ function redraw () { //Initialise Canvas element
         state_count++; //Increment provinces
 
         //Parse provinces
-        provinces = currentFileContent.match(/provinces([\S\s]*?)}/gm);
+        provinces = current_history_file_content.match(/provinces([\S\s]*?)}/gm);
 
         if (provinces != undefined && provinces != null) {
           provinces = provinces.toString();
@@ -241,15 +238,15 @@ function redraw () { //Initialise Canvas element
 
           var local_state_id = "";
           for (var i = 0; i < id_aliases.length; i++) {
-            if (currentFileContent.match(id_aliases[i]) != undefined && currentFileContent.match(id_aliases[i]) != null) {
-              local_state_id = currentFileContent.match(id_aliases[i]);
+            if (current_history_file_content.match(id_aliases[i]) != undefined && current_history_file_content.match(id_aliases[i]) != null) {
+              local_state_id = current_history_file_content.match(id_aliases[i]);
             }
           }
 
           state_id = parseInt(local_state_id).toString();
 
           //Parse Owner and Controller
-          owner_id = currentFileContent.match(/(?<=owner = ).*/gm);
+          owner_id = current_history_file_content.match(/(?<=owner = ).*/gm);
 
           if (owner_id != undefined && owner_id != null) {
             owner_id = owner_id.toString().split(",");
@@ -265,23 +262,23 @@ function redraw () { //Initialise Canvas element
             }
             for (var i = 0; i < provinces.length; i++) {
               if (isNaN(parseInt(provinces[i])) == false) {
-                if (provinceData[parseInt(provinces[i]).toString()] == undefined) {
-                  provinceData[parseInt(provinces[i]).toString()] = [parseInt(provinces[i]), state_id];
+                if (province_data[parseInt(provinces[i]).toString()] == undefined) {
+                  province_data[parseInt(provinces[i]).toString()] = [parseInt(provinces[i]), state_id];
                   if (parseInt(provinces[i]).toString() == "6421") {
                     console.log("Mark 6421");
                   }
-                  //console.log("Set province data for Province #" + provinces[i] + " as " + provinceData[provinces[i]]);
+                  //console.log("Set province data for Province #" + provinces[i] + " as " + province_data[provinces[i]]);
                 }
               }
             }
 
-            for (var i = 0; i < colours.length; i++) {
-              if (owner_id == colours[i][0]) {
-                state_colour = [colours[i+1][2], colours[i+1][3], colours[i+1][4]];
+            for (var i = 0; i < colors.length; i++) {
+              if (owner_id == colors[i][0]) {
+                state_colour = [colors[i+1][2], colors[i+1][3], colors[i+1][4]];
               }
             }
 
-            state_colours[state_id] = state_colour;
+            state_colors[state_id] = state_colour;
 
             console.log(state_colour);
           }

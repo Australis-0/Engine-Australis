@@ -92,12 +92,3 @@ window.csv_to_array = function (data, delimeter) {
 
   return array;
 }
-
-var fs = require('fs');
-
-try {
-  definition = fs.readFileSync('./resources/app/map/definition.csv', 'utf8');
-  definition = (csv2array(definition.toString(),';'));
-} catch(e) {
-  console.log('Error:', e.stack);
-}
