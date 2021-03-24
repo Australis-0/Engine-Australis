@@ -35,15 +35,15 @@ function getRandom (min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
-function redraw () { //Initialise Canvas element
-  c = document.getElementById("map-canvas");
+function redraw () { //initialize Canvas element
+  c = document.getElementById("map-canvas"); //main display map
   ctx = c.getContext("2d");
-  d = document.getElementById("map-canvas-2");
+  d = document.getElementById("map-canvas-2"); //cache map
   dtx = d.getContext("2d");
-  e = document.getElementById("map-canvas-3");
+  e = document.getElementById("map-canvas-3"); //original provinces map
   etx = e.getContext("2d");
 
-  img = document.getElementById("provinces_bmp");
+  img = document.getElementById("provinces-img"); //main provinces img
   provinces = [];
   ctx.drawImage(img, 0, 0, img.width, img.height);
   dtx.drawImage(img, 0, 0, img.width, img.height);
@@ -52,21 +52,22 @@ function redraw () { //Initialise Canvas element
   image_data = ctx.getImageData(0, 0, img.width, img.height);
 
   function getCursorPosition(c, event) {
-    var panY  = window.pageYOffset || document.documentElement.scrollTop,
-      panX = window.pageXOffset || document.documentElement.scrollLeft;
+    var pan_x = window.pageXOffset || document.documentElement.scrollLeft;
+    var pan_y  = window.pageYOffset || document.documentElement.scrollTop;
+
     const rect = c.getBoundingClientRect();
-    const x = ((event.clientX)*(img.width/c.offsetWidth))+(panX/zoomLevel);
-    const y = ((event.clientY)*(img.width/c.offsetWidth))+(panY/zoomLevel);
-    return [x,y];
-    console.log(y);
+    const x = ((event.clientX)*(img.width/c.offsetWidth))+(pan_x/zoomLevel);
+    const y = ((event.clientY)*(img.width/c.offsetWidth))+(pan_y/zoomLevel);
+
+    return [x, y];
   }
 
-  function replace_color (colour1, colour2) {
+  function replace_color (color_1, color_2) {
     for (var x = 0; x < image_data.data.length; x+=4) {
-      if (image_data.data[x] == colour1[0] && image_data.data[x+1] == colour1[1] && image_data.data[x+2] == colour1[2]) {
-        image_data.data[x] = colour2[0];
-        image_data.data[x+1] = colour2[1];
-        image_data.data[x+2] = colour2[2];
+      if (image_data.data[x] == color_1[0] && image_data.data[x+1] == color_1[1] && image_data.data[x+2] == color_1[2]) {
+        image_data.data[x] = color_2[0];
+        image_data.data[x+1] = color_2[1];
+        image_data.data[x+2] = color_2[2];
       }
     }
   }
@@ -80,12 +81,12 @@ function redraw () { //Initialise Canvas element
       for (var i = 0; i < definition.length; i++) {
         if (coordinate_data.data[0] == parseInt(definition[i][1]) && coordinate_data.data[1] == parseInt(definition[i][2]) && coordinate_data.data[2] == parseInt(definition[i][3])) {
           if (province_data[i] != undefined) {
-            selectedProvince = definition[i][0];
-            var currentProvince = definition[i][0];
+            selected_province = definition[i][0];
+            var current_province = definition[i][0];
             var province_color = [parseInt(definition[i][1]), parseInt(definition[i][2]), parseInt(definition[i][3])];
-            var currentState = province_data[i][1];
-            var stateColour = state_colors[currentState];
-            console.log("You have clicked on Province " + selectedProvince + "\nState: " + currentState);
+            var current_state = province_data[i][1];
+            var statecolor = state_colors[current_state];
+            console.log("You have clicked on Province " + selected_province + "\nState: " + current_state);
 
             if (map_mode == "provinces") {
               replace_color(province_color, [255, 255, 255]);
@@ -96,11 +97,11 @@ function redraw () { //Initialise Canvas element
                 dtx.putImageData(image_data, 0, 0);
               },100);
             } else if (map_mode == "states") {
-              replace_color(stateColour, [255, 255, 255]);
+              replace_color(statecolor, [255, 255, 255]);
               dtx.putImageData(image_data, 0, 0);
 
               setTimeout(function(){
-                replace_color([255, 255, 255], stateColour);
+                replace_color([255, 255, 255], statecolor);
                 dtx.putImageData(image_data, 0, 0);
               },100);
             }
@@ -214,7 +215,7 @@ function redraw () { //Initialise Canvas element
         var current_history_file_content = fs.readFileSync('resources/app/history/states/' + file, 'utf8');
         var provinces = [];
         var state_id = 0;
-        var state_colour = [];
+        var state_color = [];
         var owner_id = "";
         var controller_id = "";
 
@@ -274,13 +275,13 @@ function redraw () { //Initialise Canvas element
 
             for (var i = 0; i < colors.length; i++) {
               if (owner_id == colors[i][0]) {
-                state_colour = [colors[i+1][2], colors[i+1][3], colors[i+1][4]];
+                state_color = [colors[i+1][2], colors[i+1][3], colors[i+1][4]];
               }
             }
 
-            state_colors[state_id] = state_colour;
+            state_colors[state_id] = state_color;
 
-            console.log(state_colour);
+            console.log(state_color);
           }
         } else {
           console.error("Error encountered when parsing file: " + file);
@@ -301,7 +302,7 @@ function zoom (level) {
   }
 }
 function saveImage (element_id, output_file) {
-  c = document.getElementById(element_id);
+  canvas = document.getElementById(element_id);
 
   // Get the DataUrl from the Canvas
   const url = c.toDataURL('image/jpg', 0.8);
