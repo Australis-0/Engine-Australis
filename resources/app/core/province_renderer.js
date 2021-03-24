@@ -27,9 +27,9 @@ var map_mode = "provinces";
 } //Variables
 
 for (var i = 0; i < colors_amount; i++) {
-  state_colors.push([getRandom(0,255), getRandom(0,255), getRandom(0,255)]);
+  state_colors.push([randomNumber(0, 255), randomNumber(0, 255), randomNumber(0, 255)]);
 }
-function getRandom (min, max) {
+function randomNumber (min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min)) + min;
@@ -92,7 +92,7 @@ function redraw () { //initialize Canvas element
               replace_color(province_color, [255, 255, 255]);
               dtx.putImageData(image_data, 0, 0);
 
-              setTimeout(function(){
+              setTimeout(function() {
                 replace_color([255, 255, 255], province_color);
                 dtx.putImageData(image_data, 0, 0);
               },100);
@@ -100,7 +100,7 @@ function redraw () { //initialize Canvas element
               replace_color(statecolor, [255, 255, 255]);
               dtx.putImageData(image_data, 0, 0);
 
-              setTimeout(function(){
+              setTimeout(function() {
                 replace_color([255, 255, 255], statecolor);
                 dtx.putImageData(image_data, 0, 0);
               },100);
@@ -112,9 +112,7 @@ function redraw () { //initialize Canvas element
       }
     //}
   });
-
-  var fs = require('fs');
-
+  
   try {
     definition = fs.readFileSync("./resources/app/map/definition.csv", "utf8");
     definition = window.csv_to_array(definition.toString(), ";");
