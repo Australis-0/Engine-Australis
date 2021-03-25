@@ -53,6 +53,7 @@
     "electron-shortcut-normalizer": "^1.0.0",
     "glob": "^7.1.0",
     "highlight.js": "^9.3.0",
+    "jomini": "^0.4.4",
     "update-electron-app": "^1.1.1"
   },
   "standard": {

@@ -120,7 +120,7 @@ function redraw () { //initialize Canvas element
             selected_province = definition[i][0];
             var current_province = definition[i][0];
             var province_color = [parseInt(definition[i][1]), parseInt(definition[i][2]), parseInt(definition[i][3])];
-            var current_state = province_data.state_id;
+            var current_state = province_data[i].state_id;
             var state_color = state_colors[current_state];
             console.log("You have clicked on Province " + selected_province + "\nState: " + current_state);
 
@@ -173,7 +173,7 @@ function redraw () { //initialize Canvas element
           state_rendering_done = true;
         }
       }
-    }, 0);
+    }, -1);
     //Generate random state colors
     province_count = 0;
     setInterval(function(){
@@ -250,70 +250,60 @@ function redraw () { //initialize Canvas element
         state_count++; //Increment provinces
 
         //Parse provinces
-        provinces = current_history_file_content.match(/provinces([\S\s]*?)}/gm);
+        var state_file_content = window.parseFile("resources/app/history/states/" + file);
+        state_file_content.then((state_obj) => {
+          if (state_obj.state != undefined) {
+            if (state_obj.state.provinces != undefined) {
+              provinces = state_obj.state.provinces;
 
-        if (provinces != undefined && provinces != null) {
-          provinces = provinces.toString();
-
-          provinces = provinces.replace(/provinces/gm, "");
-          provinces = provinces.replace(/\,/gm, "");
-          provinces = provinces.replace(/\t/gm, "");
-          provinces = provinces.replace(/[{}]/gm, "");
-          provinces = provinces.replace(/=/gm, "");
-          provinces = provinces.split(" ");
-
-          //Parse State ID
-          console.log("Currently parsing File: " + file);
-
-          var local_state_id = "";
-          for (var i = 0; i < id_aliases.length; i++) {
-            if (current_history_file_content.match(id_aliases[i]) != undefined && current_history_file_content.match(id_aliases[i]) != null) {
-              local_state_id = current_history_file_content.match(id_aliases[i]);
-            }
-          }
-
-          state_id = parseInt(local_state_id).toString();
-
-          //Parse Owner and Controller
-          owner_id = current_history_file_content.match(/(?<=owner = ).*/gm);
-
-          if (owner_id != undefined && owner_id != null) {
-            owner_id = owner_id.toString().split(",");
-            if (owner_id.length > 1) {
-              owner_id = owner_id[0];
-            }
-
-            console.log("State #" + state_id + "\nProvinces: " + provinces + "\nOwner: " + owner_id);
-
-            for (var i = 0; i < provinces.length; i++) {
-              provinces[i] = provinces[i].trim();
-              provinces[i] = parseInt(provinces[i]).toString();
-            }
-
-            for (var i = 0; i < colors.length; i++) {
-              if (owner_id == colors[i][0]) {
-                state_color = [colors[i+1][2], colors[i+1][3], colors[i+1][4]];
+              for (var i = 0; i < provinces.length; i++) {
+                provinces[i] = provinces[i].toString();
               }
-            }
 
-            //initialize province object
-            for (var i = 0; i < provinces.length; i++) {
-              if (isNaN(parseInt(provinces[i])) == false) {
-                if (province_data[parseInt(provinces[i]).toString()] == undefined) {
-                  province_data[parseInt(provinces[i]).toString()] = {
-                    display_color: state_color,
-                    province_id: parseInt(provinces[i]),
-                    state_id: state_id
-                  };
+              //Parse State ID
+              console.log("Currently parsing File: " + file);
+
+              var local_state_id = "";
+              for (var i = 0; i < id_aliases.length; i++) {
+                if (current_history_file_content.match(id_aliases[i]) != undefined && current_history_file_content.match(id_aliases[i]) != null) {
+                  local_state_id = current_history_file_content.match(id_aliases[i]);
                 }
               }
-            }
 
-            state_colors[state_id] = state_color;
+              state_id = parseInt(local_state_id).toString();
+
+              //Parse Owner and Controller
+              owner_id = state_obj.state.history.owner;
+
+              if (owner_id != undefined && owner_id != null) {
+                console.log("State #" + state_id + "\nProvinces: " + provinces + "\nOwner: " + owner_id);
+
+                for (var i = 0; i < colors.length; i++) {
+                  if (owner_id == colors[i][0]) {
+                    state_color = [colors[i+1][2], colors[i+1][3], colors[i+1][4]];
+                  }
+                }
+
+                //initialize province object
+                for (var i = 0; i < provinces.length; i++) {
+                  if (isNaN(parseInt(provinces[i])) == false) {
+                    if (province_data[parseInt(provinces[i]).toString()] == undefined) {
+                      province_data[parseInt(provinces[i]).toString()] = {
+                        display_color: state_color,
+                        province_id: parseInt(provinces[i]),
+                        state_id: state_id
+                      };
+                    }
+                  }
+                }
+
+                state_colors[state_id] = state_color;
+              } else {
+                state_color = [0, 0, 0];
+              }
+            }
           }
-        } else {
-          console.error("Error encountered when parsing file: " + file);
-        }
+        });
       });
     });
   } //State JS

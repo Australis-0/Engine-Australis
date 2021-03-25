@@ -4,7 +4,7 @@ window.dynamicFetch = function (object, dynamic_string) {
   }
   var prop, props = dynamic_string.split(".");
 
-  for (var i = 0; i_length = props.length - 1; i < i_length; i++) {
+  for (var i = 0, i_length = props.length - 1; i < i_length; i++) {
     prop = props[i];
 
     var candidate = object[prop];
@@ -17,17 +17,12 @@ window.dynamicFetch = function (object, dynamic_string) {
   }
 
   //Return fetched object
-  return obj[props[i]];
+  return object[props[i]];
 }
 
-window.parseFile = function (file_path) {
-  var file_obj = {};
-  var file_content = fs.readFileSync(file_path, "utf8").toString();
-
-  //Parsing logic variables
-  var current_key = "";
-
-  for (var i = 0; i < file_content.length; i++) {
-
-  }
+window.parseFile = async function (file_path) {
+  const file_content = fs.readFileSync(file_path, "utf8").toString();
+  //parse file into JSON using jomini
+  const out = parser.parseText(file_content);
+  return out;
 }
